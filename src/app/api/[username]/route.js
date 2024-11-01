@@ -1,6 +1,7 @@
-import { createClient } from '@upstash/redis';
+import { Redis } from '@upstash/redis';
 import { createCanvas, loadImage } from 'canvas';
-const redis = createClient({
+
+const redis = new Redis({
   url: process.env.UPSTASH_REDIS_REST_URL,
   token: process.env.UPSTASH_REDIS_REST_TOKEN,
 });
@@ -55,7 +56,6 @@ export async function GET(req, { params: { username } }) {
 
     const buffer = canvas.toBuffer("image/png");
 
-    // Cache the generated image for 1 hour
     await redis.set(`badges:${username}`, buffer, { ex: 3600 });
 
     return new Response(buffer, {
