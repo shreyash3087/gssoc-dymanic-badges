@@ -29,25 +29,26 @@ export async function GET(req, { params: { username } }) {
       return new Response("User not found", { status: 404 });
     }
 
-    const { score } = contributor;
-    const unlockedBadges = Object.values(badges).filter(
-      (badge) => score >= badge.score
-    );
+    const { score, postManTag } = contributor;
 
-    // Set canvas size based on number of badges
+    const unlockedBadges = Object.values(badges).filter((badge) => {
+      if (badge.name === "Postman Badge") {
+        return postManTag && score >= badge.score;
+      }
+      return score >= badge.score;
+    });
+
     const canvasWidth = 80 * unlockedBadges.length;
     const canvasHeight = 100;
     const canvas = createCanvas(canvasWidth, canvasHeight);
     const context = canvas.getContext("2d");
 
-    // Load each badge image and draw it on the canvas
     for (let i = 0; i < unlockedBadges.length; i++) {
       const badge = unlockedBadges[i];
       const badgeImage = await loadImage(badge.badge);
       context.drawImage(badgeImage, i * 80, 10, 80, 80);
     }
 
-    // Convert the canvas to a PNG stream
     const buffer = canvas.toBuffer("image/png");
 
     return new Response(buffer, {
