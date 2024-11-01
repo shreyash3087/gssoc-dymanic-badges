@@ -5,7 +5,9 @@ const redis = new Redis({
   url: process.env.KV_REST_API_URL,
   token: process.env.KV_REST_API_TOKEN,
 });
-export async function GET(req, { params: { username } }) {
+
+export async function GET(req, { params }) {
+  const { username } = await params;
   const badges = {
     1: { score: 1, name: "Postman Badge", badge: "https://github.com/user-attachments/assets/eb1698c5-7400-40d1-9441-319b5e4d0c08" },
     60: { score: 60, name: "Explorer Badge", badge: "https://github.com/user-attachments/assets/fc84ac41-dfd4-4277-b239-4ac09ced4512" },
