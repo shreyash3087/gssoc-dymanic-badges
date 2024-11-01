@@ -50,13 +50,15 @@ export async function GET(req, { params: { username } }) {
       `;
   
       // Return the single SVG badge response
-      return new Response(svgBadges, {
-        headers: {
-          "Content-Type": "image/svg+xml",
-          "Access-Control-Allow-Origin": "*", 
-          "Access-Control-Allow-Methods": "GET, OPTIONS",
-        },
-      });
+return new Response(svgBadges, {
+  headers: {
+    "Content-Type": "image/svg+xml",
+    "Access-Control-Allow-Origin": "*", 
+    "Access-Control-Allow-Methods": "GET, OPTIONS",
+    "Cache-Control": "public, max-age=0, must-revalidate",
+    "Content-Encoding": "utf-8"
+  },
+});
     } catch (error) {
       console.error("Error fetching user data:", error);
       return new Response("Error fetching user data", { status: 500 });
