@@ -7,7 +7,8 @@ const redis = new Redis({
 });
 
 export async function GET(req, { params }) {
-  const { username } = await params;
+
+  const { username } = await params; 
   const badges = {
     1: { score: 1, name: "Postman Badge", badge: "https://github.com/user-attachments/assets/eb1698c5-7400-40d1-9441-319b5e4d0c08" },
     60: { score: 60, name: "Explorer Badge", badge: "https://github.com/user-attachments/assets/fc84ac41-dfd4-4277-b239-4ac09ced4512" },
@@ -23,7 +24,8 @@ export async function GET(req, { params }) {
   try {
     const cachedBadges = await redis.get(`badges:${username}`);
     if (cachedBadges) {
-      return new Response(cachedBadges, {
+      const buffer = Buffer.from(cachedBadges, 'base64');
+      return new Response(buffer, {
         headers: {
           "Content-Type": "image/png",
           "Access-Control-Allow-Origin": "*",
@@ -58,7 +60,7 @@ export async function GET(req, { params }) {
 
     const buffer = canvas.toBuffer("image/png");
 
-    await redis.set(`badges:${username}`, buffer, { ex: 3600 });
+    await redis.set(`badges:${username}`, buffer.toString('base64'), { ex: 3600 });
 
     return new Response(buffer, {
       headers: {
@@ -68,6 +70,6 @@ export async function GET(req, { params }) {
     });
   } catch (error) {
     console.error("Error fetching user data:", error);
-    return new Response("Error fetching user data", { status: 500 });
+    return new Response("Error fetching user data: " + error.message, { status: 500 });
   }
 }
