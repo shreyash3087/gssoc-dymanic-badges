@@ -1,3 +1,4 @@
+import { kv } from '@upstash/kv';
 import { createCanvas, loadImage } from 'canvas';
 
 export async function GET(req, { params: { username } }) {
@@ -14,11 +15,19 @@ export async function GET(req, { params: { username } }) {
   };
 
   try {
-    const response = await fetch("https://gssoc24-leaderboard-backend-production-dfe3.up.railway.app/OSLeaderboard");
-
-    if (!response.ok) {
-      throw new Error("Network response was not ok");
+    const cachedBadge = await kv.get(username);
+    if (cachedBadge) {
+      return new Response(cachedBadge, {
+        headers: {
+          "Content-Type": "image/png",
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "GET, OPTIONS",
+        },
+      });
     }
+    
+    const response = await fetch("https://gssoc24-leaderboard-backend-production-dfe3.up.railway.app/OSLeaderboard");
+    if (!response.ok) throw new Error("Network response was not ok");
 
     const data = await response.json();
     const contributor = data.leaderboard.find(
@@ -30,11 +39,8 @@ export async function GET(req, { params: { username } }) {
     }
 
     const { score, postManTag } = contributor;
-
     const unlockedBadges = Object.values(badges).filter((badge) => {
-      if (badge.name === "Postman Badge") {
-        return postManTag && score >= badge.score;
-      }
+      if (badge.name === "Postman Badge") return postManTag && score >= badge.score;
       return score >= badge.score;
     });
 
@@ -50,6 +56,8 @@ export async function GET(req, { params: { username } }) {
     }
 
     const buffer = canvas.toBuffer("image/png");
+
+    await kv.set(username, buffer, { ex: 3600 });
 
     return new Response(buffer, {
       headers: {
