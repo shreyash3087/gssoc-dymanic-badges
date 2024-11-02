@@ -123,7 +123,6 @@ export async function GET(req, { params }) {
       });
     }
 
-    // Not all badges are cached, so generate and cache each one individually
     const canvasWidth = 480 * unlockedBadges.length;
     const canvasHeight = 600;
     const canvas = createCanvas(canvasWidth, canvasHeight);
@@ -133,8 +132,6 @@ export async function GET(req, { params }) {
       unlockedBadges.map(async (badge, i) => {
         const badgeImage = await loadImage(badge.badge);
         context.drawImage(badgeImage, i * 480, 80, 480, 480);
-
-        // Save each badge individually in Redis
         const badgeCanvas = createCanvas(480, 600);
         const badgeContext = badgeCanvas.getContext("2d");
         badgeContext.drawImage(badgeImage, 0, 80, 480, 480);
