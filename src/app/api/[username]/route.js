@@ -80,7 +80,6 @@ export async function GET(req, { params }) {
   }
 
   try {
-    // Fetch leaderboard data
     const response = await fetch(leaderboardUrl);
     if (!response.ok) throw new Error("Network response was not ok");
 
@@ -104,7 +103,6 @@ export async function GET(req, { params }) {
     );
 
     if (cachedImages.every((img) => img)) {
-      // All badges are cached, so retrieve and assemble them on canvas
       const canvasWidth = 480 * unlockedBadges.length;
       const canvasHeight = 600;
       const canvas = createCanvas(canvasWidth, canvasHeight);
@@ -113,7 +111,7 @@ export async function GET(req, { params }) {
       for (let i = 0; i < cachedImages.length; i++) {
         const badgeBuffer = Buffer.from(cachedImages[i], "base64");
         const badgeImage = await loadImage(badgeBuffer);
-        context.drawImage(badgeImage, i * 480, 80, 480, 480);
+        context.drawImage(badgeImage, i * 480, 80, 420, 480);
       }
 
       const buffer = canvas.toBuffer("image/png");
