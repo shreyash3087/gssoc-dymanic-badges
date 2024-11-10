@@ -95,11 +95,11 @@ export async function GET(req, { params }) {
     );
     if (!contributor) return new Response("User not found", { status: 404 });
 
-    const { score, postManTag, web3HackTag } = contributor;
+    const { score, postManTag, web3hack } = contributor;
 
     const unlockedBadges = Object.values(badges).filter((badge) => {
       if (badge.name === "Postman Badge") return postManTag && score >= badge.score;
-      if (badge.name === "Web3Hack Badge") return web3HackTag;
+      if (badge.name === "Web3Hack Badge") return web3hack;
       return score >= badge.score;
     });
 
