@@ -29,7 +29,7 @@ Example:
 ```plaintext
 ![GSSoC-Badges](https://gssoc-dymanic-badges.vercel.app/api/shubhagarwal1?year=2024Extd)
 ```
-### Optional: Make the Badge Clickable
+### Optional: Make the Badge Redirect to GSSoC's Website
 To link the badge to the GSSoC website or leaderboard, wrap the Markdown in a link:
 ```plaintext
 [![GSSoC-Badges](https://gssoc-dymanic-badges.vercel.app/api/<username>?year=<year>)](https://gssoc.girlscript.tech)
