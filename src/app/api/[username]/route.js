@@ -20,6 +20,12 @@ const badges = {
     badge:
       "https://github.com/user-attachments/assets/eb1698c5-7400-40d1-9441-319b5e4d0c08",
   },
+  1: {
+    score: 1,
+    name: "Web3Hack Badge",
+    badge:
+      "https://github.com/user-attachments/assets/9553f1b5-e94a-4f9d-a05b-5f2a8e8552c2",
+  },
   60: {
     score: 60,
     name: "Explorer Badge",
@@ -89,10 +95,11 @@ export async function GET(req, { params }) {
     );
     if (!contributor) return new Response("User not found", { status: 404 });
 
-    const { score, postManTag } = contributor;
+    const { score, postManTag, web3HackTag } = contributor;
 
     const unlockedBadges = Object.values(badges).filter((badge) => {
       if (badge.name === "Postman Badge") return postManTag && score >= badge.score;
+      if (badge.name === "Web3Hack Badge") return web3HackTag;
       return score >= badge.score;
     });
 
@@ -123,18 +130,19 @@ export async function GET(req, { params }) {
       });
     }
 
-    const canvasWidth = 480 * unlockedBadges.length;
-    const canvasHeight = 600;
+    const canvasWidth = 360 * unlockedBadges.length;
+    const canvasHeight = 460;
     const canvas = createCanvas(canvasWidth, canvasHeight);
     const context = canvas.getContext("2d");
 
     await Promise.all(
       unlockedBadges.map(async (badge, i) => {
         const badgeImage = await loadImage(badge.badge);
-        context.drawImage(badgeImage, i * 480, 80, 480, 480);
-        const badgeCanvas = createCanvas(480, 600);
+        context.drawImage(badgeImage, i * 360, 50, 360, 360);
+
+        const badgeCanvas = createCanvas(360, 460);
         const badgeContext = badgeCanvas.getContext("2d");
-        badgeContext.drawImage(badgeImage, 0, 80, 480, 480);
+        badgeContext.drawImage(badgeImage, 0, 50, 360, 360);
         const badgeBuffer = badgeCanvas.toBuffer("image/png");
 
         await redis.set(
