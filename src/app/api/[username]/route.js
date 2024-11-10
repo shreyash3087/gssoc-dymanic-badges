@@ -75,7 +75,6 @@ const badges = {
       "https://github.com/user-attachments/assets/5e4e86f0-72f0-40eb-9061-10e73cdf5a81",
   },
 };
-
 export async function GET(req, { params }) {
   const username = await params.username;
   const { searchParams } = new URL(req.url);
@@ -103,25 +102,9 @@ export async function GET(req, { params }) {
       return score >= badge.score;
     });
 
-    const cachedImages = await Promise.all(
-      unlockedBadges.map((badge) =>
-        redis.get(`badge:${username}-${year}-${badge.name}`)
-      )
-    );
-
-    if (cachedImages.every((img) => img)) {
-      const canvasWidth = 360 * unlockedBadges.length;
-      const canvasHeight = 460;
-      const canvas = createCanvas(canvasWidth, canvasHeight);
-      const context = canvas.getContext("2d");
-
-      for (let i = 0; i < cachedImages.length; i++) {
-        const badgeBuffer = Buffer.from(cachedImages[i], "base64");
-        const badgeImage = await loadImage(badgeBuffer);
-        context.drawImage(badgeImage, i * 360, 50, 320, 360);
-      }
-
-      const buffer = canvas.toBuffer("image/png");
+    const cachedImage = await redis.get(`user:${username}-${year}-badges`);
+    if (cachedImage) {
+      const buffer = Buffer.from(cachedImage, "base64");
       return new Response(buffer, {
         headers: {
           "Content-Type": "image/png",
@@ -130,30 +113,27 @@ export async function GET(req, { params }) {
       });
     }
 
-    const canvasWidth = 360 * unlockedBadges.length;
-    const canvasHeight = 460;
+    const badgeSize = 180;
+    const spacing = 20;
+    const canvasWidth = (badgeSize + spacing) * unlockedBadges.length - spacing;
+    const canvasHeight = badgeSize + 100;
     const canvas = createCanvas(canvasWidth, canvasHeight);
     const context = canvas.getContext("2d");
 
     await Promise.all(
       unlockedBadges.map(async (badge, i) => {
         const badgeImage = await loadImage(badge.badge);
-        context.drawImage(badgeImage, i * 360, 50, 360, 360);
-
-        const badgeCanvas = createCanvas(360, 460);
-        const badgeContext = badgeCanvas.getContext("2d");
-        badgeContext.drawImage(badgeImage, 0, 50, 360, 360);
-        const badgeBuffer = badgeCanvas.toBuffer("image/png");
-
-        await redis.set(
-          `badge:${username}-${year}-${badge.name}`,
-          badgeBuffer.toString("base64"),
-          { ex: 1800 }
-        );
+        context.drawImage(badgeImage, i * (badgeSize + spacing), 50, badgeSize, badgeSize);
       })
     );
 
     const buffer = canvas.toBuffer("image/png");
+    await redis.set(
+      `user:${username}-${year}-badges`,
+      buffer.toString("base64"),
+      { ex: 1800 }
+    );
+
     return new Response(buffer, {
       headers: {
         "Content-Type": "image/png",
