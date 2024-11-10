@@ -110,15 +110,15 @@ export async function GET(req, { params }) {
     );
 
     if (cachedImages.every((img) => img)) {
-      const canvasWidth = 480 * unlockedBadges.length;
-      const canvasHeight = 600;
+      const canvasWidth = 360 * unlockedBadges.length;
+      const canvasHeight = 460;
       const canvas = createCanvas(canvasWidth, canvasHeight);
       const context = canvas.getContext("2d");
 
       for (let i = 0; i < cachedImages.length; i++) {
         const badgeBuffer = Buffer.from(cachedImages[i], "base64");
         const badgeImage = await loadImage(badgeBuffer);
-        context.drawImage(badgeImage, i * 480, 80, 420, 480);
+        context.drawImage(badgeImage, i * 360, 50, 320, 360);
       }
 
       const buffer = canvas.toBuffer("image/png");
