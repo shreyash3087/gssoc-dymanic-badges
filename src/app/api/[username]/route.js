@@ -15,13 +15,13 @@ const leaderboardURLs = {
 
 const badges = {
   1: {
-    score: 1,
+    score: 500,
     name: "Postman Badge",
     badge:
       "https://github.com/user-attachments/assets/eb1698c5-7400-40d1-9441-319b5e4d0c08",
   },
-  1: {
-    score: 1,
+  2: {
+    score: 500,
     name: "Web3Hack Badge",
     badge:
       "https://github.com/user-attachments/assets/9553f1b5-e94a-4f9d-a05b-5f2a8e8552c2",
@@ -97,7 +97,7 @@ export async function GET(req, { params }) {
     const { score, postManTag, web3hack } = contributor;
 
     const unlockedBadges = Object.values(badges).filter((badge) => {
-      if (badge.name === "Postman Badge") return postManTag && score >= badge.score;
+      if (badge.name === "Postman Badge") return postManTag;
       if (badge.name === "Web3Hack Badge") return web3hack;
       return score >= badge.score;
     });
